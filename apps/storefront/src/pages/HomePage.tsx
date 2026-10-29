@@ -31,7 +31,7 @@ export default function HomePage() {
         {/* Overlay — light enough to see the image, dark enough for text contrast */}
         <div className="absolute inset-0 bg-midnight-navy/50" aria-hidden="true" />
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-scientific-teal">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/90">
             Research Grade Peptides
           </p>
           <h1 className="max-w-2xl font-heading text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
