@@ -1,8 +1,8 @@
 {
   "framework": "vite",
-  "buildCommand": "pnpm --filter admin build",
+  "buildCommand": "cd ../.. && pnpm --filter admin build",
   "outputDirectory": "apps/admin/dist",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],

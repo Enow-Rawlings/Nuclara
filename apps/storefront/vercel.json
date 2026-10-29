@@ -1,8 +1,8 @@
 {
   "framework": "vite",
-  "buildCommand": "pnpm --filter storefront build",
+  "buildCommand": "cd ../.. && pnpm --filter storefront build",
   "outputDirectory": "apps/storefront/dist",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
