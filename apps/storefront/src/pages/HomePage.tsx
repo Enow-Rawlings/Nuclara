@@ -1,6 +1,7 @@
 ﻿import { Link } from 'react-router-dom'
 import { ArrowRight, FlaskConical, ShieldCheck, Truck } from 'lucide-react'
 import { useProducts, useCategories } from '@/hooks/useProducts'
+import { useContent } from '@/hooks/useContent'
 import { ProductCard } from '@/components/product/ProductCard'
 import { CategoryCard } from '@/components/product/CategoryCard'
 import { ProductCardSkeleton } from '@/components/ui/Skeleton'
@@ -18,8 +19,14 @@ export default function HomePage() {
     sort: 'newest',
   })
   const { data: categories = [], isLoading: categoriesLoading } = useCategories()
+  const { data: content = {} } = useContent()
 
   const featuredProducts = featuredData?.data ?? []
+
+  // Hero text — falls back to defaults if content blocks not yet seeded
+  const heroEyebrow = content['homepage_hero_eyebrow'] || 'Research Grade Peptides'
+  const heroHeading = content['homepage_hero_heading'] || 'Precision peptides for serious research.'
+  const heroSubtext = content['homepage_hero_subtext'] || 'Nuclara supplies synthetic peptides to qualified researchers and laboratories. Every product is clearly documented, compliance-gated, and supplied with full transparency.'
 
   return (
     <div>
@@ -32,15 +39,13 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-midnight-navy/50" aria-hidden="true" />
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-white/90">
-            Research Grade Peptides
+            {heroEyebrow}
           </p>
           <h1 className="max-w-2xl font-heading text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-            Precision peptides for serious research.
+            {heroHeading}
           </h1>
           <p className="max-w-xl text-lg text-white/80">
-            Nuclara supplies synthetic peptides to qualified researchers and laboratories.
-            Every product is clearly documented, compliance-gated, and supplied with full
-            transparency.
+            {heroSubtext}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button variant="primary" size="lg" onClick={() => (window.location.href = '/shop')}>
@@ -234,15 +239,21 @@ export default function HomePage() {
       <section className="border-t border-border-grey bg-cloud-white">
         <div className="mx-auto max-w-3xl px-4 py-10 text-center sm:px-6 lg:px-8">
           <p className="text-sm text-slate">
-            All products on this website are supplied for{' '}
-            <strong className="font-medium text-graphite">research and laboratory use only</strong>.
-            They are not intended for human or veterinary use. No therapeutic, health, or performance
-            claims are made. Availability varies by destination — not all products are eligible in
-            every market.{' '}
-            <Link to="/help" className="text-scientific-teal">
-              Learn more
-            </Link>
-            .
+            {content['research_notice'] ? (
+              content['research_notice']
+            ) : (
+              <>
+                All products on this website are supplied for{' '}
+                <strong className="font-medium text-graphite">research and laboratory use only</strong>.
+                They are not intended for human or veterinary use. No therapeutic, health, or performance
+                claims are made. Availability varies by destination — not all products are eligible in
+                every market.{' '}
+                <Link to="/help" className="text-scientific-teal">
+                  Learn more
+                </Link>
+                .
+              </>
+            )}
           </p>
         </div>
       </section>

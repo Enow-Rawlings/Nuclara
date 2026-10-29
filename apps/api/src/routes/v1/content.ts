@@ -10,6 +10,38 @@ import { ApiError } from '../../utils/ApiError.js'
 export const contentRouter = Router()
 
 /**
+ * GET /api/v1/content
+ * Public — returns active content blocks as a key→value map.
+ * Used by the storefront to render dynamic text without authentication.
+ */
+contentRouter.get('/', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('content_blocks')
+      .select('key, value')
+      .eq('is_active', true)
+
+    // If the table doesn't exist yet return an empty map
+    if (error) {
+      if ((error as { code?: string }).code === '42P01') {
+        ok(res, {})
+        return
+      }
+      throw new ApiError(500, 'Failed to fetch content')
+    }
+
+    // Return as { key: value } map for easy lookup on the client
+    const map: Record<string, string> = {}
+    for (const row of data ?? []) {
+      map[row.key] = row.value
+    }
+    ok(res, map)
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/content/admin
  * Admin — list all content blocks.
  * Returns [] gracefully if the content_blocks table doesn't exist yet.
