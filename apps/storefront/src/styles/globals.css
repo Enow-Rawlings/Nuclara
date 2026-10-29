@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Nuclara Design Tokens — CSS Custom Properties
+   These mirror the Tailwind theme and allow use outside
+   of utility classes (e.g. in SVGs, third-party components).
+   ============================================================ */
+:root {
+  /* Colours */
+  --color-midnight-navy: #10243a;
+  --color-scientific-teal: #087e8b;
+  --color-pale-ice: #eaf4f5;
+  --color-cloud-white: #fafcfd;
+  --color-slate: #536273;
+  --color-graphite: #202a35;
+  --color-border-grey: #dce4ea;
+  --color-success-green: #237a57;
+  --color-warning-amber: #9a5b00;
+  --color-error-red: #b42318;
+
+  /* Typography */
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Spacing base (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+}
+
+/* ============================================================
+   Base layer resets
+   ============================================================ */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-cloud-white text-graphite font-body antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-midnight-navy;
+    line-height: 1.2;
+  }
+
+  a {
+    @apply text-scientific-teal underline-offset-2;
+  }
+
+  a:focus-visible {
+    @apply outline-2 outline-offset-2 outline-scientific-teal rounded-sm;
+  }
+
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-scientific-teal rounded;
+  }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input, button, textarea, select {
+    font: inherit;
+  }
+
+  p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+  }
+}
+
+/* ============================================================
+   Utility layer — reusable component classes
+   ============================================================ */
+@layer components {
+  /* Skip to main content — accessibility */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+    @apply bg-scientific-teal text-white px-4 py-2 rounded font-medium;
+  }
+
+  /* Visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

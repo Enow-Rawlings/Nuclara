@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Nuclara Admin Design Tokens
+   ============================================================ */
+:root {
+  --color-midnight-navy: #10243a;
+  --color-scientific-teal: #087e8b;
+  --color-pale-ice: #eaf4f5;
+  --color-cloud-white: #fafcfd;
+  --color-slate: #536273;
+  --color-graphite: #202a35;
+  --color-border-grey: #dce4ea;
+  --color-success-green: #237a57;
+  --color-warning-amber: #9a5b00;
+  --color-error-red: #b42318;
+  --color-sidebar-bg: #0d1e30;
+  --color-sidebar-hover: #16304a;
+
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+
+  /* Admin sidebar dimensions */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --topbar-height: 56px;
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-cloud-white text-graphite font-body antialiased;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-midnight-navy;
+    line-height: 1.25;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-scientific-teal rounded;
+  }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input, button, textarea, select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+    @apply bg-scientific-teal text-white px-4 py-2 rounded font-medium;
+  }
+}

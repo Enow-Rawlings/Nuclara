@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: nuclara-api
+    runtime: node
+    region: frankfurt    # Closest to EU market; change to oregon/singapore as needed
+    plan: starter        # Upgrade to standard for production traffic
+    buildCommand: pnpm install --allow-build=esbuild && pnpm --filter api build
+    startCommand: node apps/api/dist/index.js
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+
+      # ── All secrets below must be set in Render dashboard, NOT here ──────────
+      # - key: DATABASE_URL             (Supabase connection string)
+      # - key: SUPABASE_URL             (project URL)
+      # - key: SUPABASE_SERVICE_ROLE_KEY (server-only — never expose to browser)
+      # - key: SUPABASE_JWT_SECRET      (from Supabase → Settings → API)
+      # - key: CLOUDINARY_CLOUD_NAME
+      # - key: CLOUDINARY_API_KEY
+      # - key: CLOUDINARY_API_SECRET
+      # - key: RESEND_API_KEY
+      # - key: EMAIL_FROM               (e.g. noreply@nuclara.com)
+      # - key: EMAIL_SUPPORT            (e.g. support@nuclara.com)
+      # - key: ALLOWED_ORIGINS          (comma-separated: https://nuclara.com,https://admin.nuclara.com)
+      # - key: FRONTEND_ORIGIN          (https://nuclara.com)
+      # - key: ADMIN_ORIGIN             (https://admin.nuclara.com)
