@@ -5,6 +5,7 @@ import { useProduct } from '@/hooks/useProducts'
 import { useSeo } from '@/hooks/useSeo'
 import { useProductStructuredData } from '@/hooks/useProductStructuredData'
 import { ProductGallery } from '@/components/product/ProductGallery'
+import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -204,6 +205,13 @@ export default function ProductPage() {
           </div>
         </section>
       )}
+
+      {/* Similar products carousel */}
+      <ProductCarousel
+        currentSlug={product.slug}
+        categorySlug={category?.slug}
+        heading="You may also like"
+      />
     </div>
   )
 }
