@@ -9,7 +9,6 @@ import { useSeo } from '@/hooks/useSeo'
 
 export default function HomePage() {
   useSeo({
-    
     description: 'Nuclara supplies research-grade synthetic peptides to qualified laboratories. Precision peptides, compliance-gated, transparently documented.',
     canonicalPath: '/',
   })
@@ -25,8 +24,13 @@ export default function HomePage() {
   return (
     <div>
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="border-b border-border-grey bg-midnight-navy">
-        <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <section
+        className="relative border-b border-border-grey bg-midnight-navy bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/hero.jpg')" }}
+      >
+        {/* Dark overlay so text stays readable over any image */}
+        <div className="absolute inset-0 bg-midnight-navy/70" aria-hidden="true" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-scientific-teal">
             Research Grade Peptides
           </p>
