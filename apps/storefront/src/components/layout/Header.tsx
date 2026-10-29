@@ -19,10 +19,17 @@ export function Header() {
         {/* Logo */}
         <Link
           to="/"
-          className="font-heading text-xl font-bold tracking-tight text-midnight-navy no-underline"
+          className="flex items-center gap-2.5 no-underline"
           aria-label="Nuclara — home"
         >
-          Nuclara
+          <img
+            src="/logo.png"
+            alt="Nuclara logo"
+            className="h-8 w-auto"
+          />
+          <span className="font-heading text-xl font-bold tracking-tight text-midnight-navy">
+            Nuclara
+          </span>
         </Link>
 
         {/* Desktop nav */}

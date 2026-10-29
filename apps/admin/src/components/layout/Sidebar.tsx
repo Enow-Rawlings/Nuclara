@@ -51,10 +51,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-slate/20 px-4">
         {!collapsed && (
-          <span className="font-heading text-base font-bold text-pale-ice">Nuclara</span>
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/logo.png"
+              alt="Nuclara logo"
+              className="h-7 w-auto"
+            />
+            <span className="font-heading text-base font-bold text-pale-ice">Nuclara</span>
+          </div>
         )}
         {collapsed && (
-          <span className="font-heading text-base font-bold text-scientific-teal">N</span>
+          <img
+            src="/logo.png"
+            alt="Nuclara"
+            className="h-7 w-auto"
+          />
         )}
       </div>
 
