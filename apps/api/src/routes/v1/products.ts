@@ -103,7 +103,6 @@ productsRouter.get('/:slug', async (req, res, next) => {
         `
         id, name, slug, sku, short_description, long_description,
         price, currency, status, stock_quantity, low_stock_threshold,
-        seo_records (seo_title, meta_description, canonical_url, robots_directive),
         product_media (cloudinary_url, alt_text, display_order, width, height),
         product_market_rules (eligibility_status, market_code),
         categories:product_categories (
@@ -114,6 +113,8 @@ productsRouter.get('/:slug', async (req, res, next) => {
       .eq('slug', slug)
       .eq('status', 'published')
       .single()
+
+    console.log(`[products/:slug] slug=${slug} market=${market} data=${JSON.stringify(data?.id)} error=${JSON.stringify(error)}`)
 
     if (error || !data) {
       throw new ApiError(404, 'Product not found or not available in your region')
@@ -127,7 +128,15 @@ productsRouter.get('/:slug', async (req, res, next) => {
       throw new ApiError(404, 'Product not found or not available in your region')
     }
 
-    ok(res, data)
+    // Fetch SEO record separately (no FK in schema — must be a separate query)
+    const { data: seoData } = await supabase
+      .from('seo_records')
+      .select('seo_title, meta_description, canonical_url, robots_directive')
+      .eq('entity_type', 'product')
+      .eq('entity_id', data.id)
+      .maybeSingle()
+
+    ok(res, { ...data, seo_records: seoData ? [seoData] : [] })
   } catch (err) {
     next(err)
   }
