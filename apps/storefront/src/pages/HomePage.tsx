@@ -95,7 +95,72 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Featured products ────────────────────────────────────────────────── */}
+      {/* ── Why Choose Us ────────────────────────────────────────────────────── */}
+      <section className="border-b border-border-grey bg-cloud-white" aria-labelledby="why-heading">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-scientific-teal">
+              Why Nuclara
+            </p>
+            <h2 id="why-heading" className="font-heading text-3xl font-bold text-midnight-navy sm:text-4xl">
+              Built for researchers who demand precision
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base text-slate">
+              We built Nuclara around one principle: researchers deserve a supplier that is as rigorous about documentation and compliance as they are about their work.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                number: '01',
+                title: 'Verified purity, every batch',
+                body: 'Every peptide is supplied with a certificate of analysis. No generic specs — you get the actual data for the batch you receive.',
+              },
+              {
+                number: '02',
+                title: 'Compliance before checkout',
+                body: 'Products are gated by destination market. If a peptide is not cleared for your region, you will know before you place an order — not after.',
+              },
+              {
+                number: '03',
+                title: 'Transparent documentation',
+                body: 'Full product sheets, handling guidelines, and regulatory status per market. Everything is disclosed, nothing is buried in footnotes.',
+              },
+              {
+                number: '04',
+                title: 'Direct fulfilment, no middlemen',
+                body: 'We warehouse and ship every order ourselves. That means real-time stock visibility and no third-party delays between you and your product.',
+              },
+              {
+                number: '05',
+                title: 'Research-only supply chain',
+                body: 'Nuclara operates exclusively in the research supply channel. We do not sell to consumers. Every order is reviewed against qualifying criteria.',
+              },
+              {
+                number: '06',
+                title: 'Responsive specialist support',
+                body: 'Questions about a peptide, your order, or your market? Our support team understands the science — not just the logistics.',
+              },
+            ].map((item) => (
+              <div
+                key={item.number}
+                className="group rounded-xl border border-border-grey bg-pale-ice p-6 transition-shadow hover:shadow-card"
+              >
+                <span className="mb-4 block font-heading text-3xl font-bold text-scientific-teal/30 group-hover:text-scientific-teal/60 transition-colors">
+                  {item.number}
+                </span>
+                <h3 className="mb-2 font-heading text-base font-semibold text-midnight-navy">
+                  {item.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8" aria-labelledby="featured-heading">
         <div className="mb-6 flex items-center justify-between gap-4">
           <h2 id="featured-heading" className="font-heading text-2xl font-bold text-midnight-navy">
