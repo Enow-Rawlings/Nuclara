@@ -1,9 +1,11 @@
-﻿import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Mail, Phone, ShoppingBag } from 'lucide-react'
+﻿import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { ArrowLeft, Mail, Phone, ShoppingBag, ShieldCheck, ShieldOff, Clock, AlertTriangle } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { ApiSuccess } from 'shared-types'
 import { Badge, orderStatusBadge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 interface CustomerDetail {
@@ -28,8 +30,14 @@ async function fetchCustomer(id: string): Promise<CustomerDetail> {
   return data.data
 }
 
+const statusVariant = (isVerified: boolean) => isVerified ? 'success' as const : 'warning' as const
+
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const queryClient = useQueryClient()
+  const [suspendReason, setSuspendReason] = useState('')
+  const [showSuspendForm, setShowSuspendForm] = useState(false)
+  const [kycError, setKycError] = useState<string | null>(null)
 
   const { data: customer, isLoading, isError } = useQuery({
     queryKey: ['admin-customer', id],
@@ -37,11 +45,29 @@ export default function CustomerDetailPage() {
     enabled: !!id,
   })
 
+  const kycMutation = useMutation({
+    mutationFn: ({ status, reason }: { status: string; reason?: string | undefined }) =>
+      api.patch(`/customers/admin/${id}/status`, { status, ...(reason ? { reason } : {}) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-customer', id] })
+      queryClient.invalidateQueries({ queryKey: ['admin-customers'] })
+      setShowSuspendForm(false)
+      setSuspendReason('')
+      setKycError(null)
+    },
+    onError: (err: unknown) => {
+      setKycError(
+        (err as { response?: { data?: { error?: { message?: string } } } })
+          ?.response?.data?.error?.message ?? 'Failed to update customer status.'
+      )
+    },
+  })
+
   if (isLoading) {
     return (
       <div className="max-w-3xl space-y-4">
         <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-32 w-full rounded-lg" />
+        <Skeleton className="h-40 w-full rounded-lg" />
         <Skeleton className="h-48 w-full rounded-lg" />
       </div>
     )
@@ -58,10 +84,7 @@ export default function CustomerDetailPage() {
 
   return (
     <div className="max-w-3xl">
-      <Link
-        to="/customers"
-        className="mb-6 flex items-center gap-1 text-sm text-slate no-underline hover:text-midnight-navy"
-      >
+      <Link to="/customers" className="mb-6 flex items-center gap-1 text-sm text-slate no-underline hover:text-midnight-navy">
         <ArrowLeft size={14} aria-hidden="true" /> All customers
       </Link>
 
@@ -72,8 +95,14 @@ export default function CustomerDetailPage() {
         <p className="mt-1 text-sm text-slate">Customer account details and order history.</p>
       </div>
 
+      {kycError && (
+        <div role="alert" className="mb-4 flex gap-2 rounded border border-error-red/30 bg-[#fde8e8] p-3 text-sm text-error-red">
+          <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" aria-hidden="true" />{kycError}
+        </div>
+      )}
+
       {/* Profile card */}
-      <div className="mb-6 rounded-lg border border-border-grey bg-cloud-white p-5">
+      <div className="mb-4 rounded-lg border border-border-grey bg-cloud-white p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-graphite">
@@ -90,10 +119,84 @@ export default function CustomerDetailPage() {
               Registered {new Date(customer.created_at).toLocaleDateString()}
             </p>
           </div>
-          <Badge variant={customer.is_verified ? 'success' : 'warning'}>
+          <Badge variant={statusVariant(customer.is_verified)}>
             {customer.is_verified ? 'Verified' : 'Unverified'}
           </Badge>
         </div>
+      </div>
+
+      {/* KYC controls */}
+      <div className="mb-6 rounded-lg border border-border-grey bg-pale-ice p-5">
+        <h2 className="mb-1 font-heading text-sm font-semibold text-midnight-navy">Account verification (KYC)</h2>
+        <p className="mb-4 text-xs text-slate">
+          Changing status sends an automatic email notification to the customer.
+        </p>
+
+        {showSuspendForm ? (
+          <div className="flex flex-col gap-3">
+            <div>
+              <label htmlFor="suspend-reason" className="mb-1 block text-xs font-medium text-graphite">
+                Reason (optional — included in the email to the customer)
+              </label>
+              <textarea
+                id="suspend-reason"
+                rows={2}
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                placeholder="e.g. Unable to verify research credentials"
+                className="w-full resize-none rounded border border-border-grey bg-cloud-white px-3 py-2 text-sm text-graphite focus:border-scientific-teal focus:outline-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                loading={kycMutation.isPending}
+                onClick={() => kycMutation.mutate({ status: 'suspended', reason: suspendReason || undefined })}
+                className="bg-error-red hover:bg-[#c0392b]"
+              >
+                <ShieldOff size={13} aria-hidden="true" />
+                Confirm suspend
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => { setShowSuspendForm(false); setSuspendReason('') }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {!customer.is_verified && (
+              <Button
+                variant="primary"
+                size="sm"
+                loading={kycMutation.isPending}
+                onClick={() => kycMutation.mutate({ status: 'active' })}
+              >
+                <ShieldCheck size={13} aria-hidden="true" />
+                Verify account
+              </Button>
+            )}
+            {customer.is_verified && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowSuspendForm(true)}
+              >
+                <ShieldOff size={13} aria-hidden="true" />
+                Suspend account
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={kycMutation.isPending}
+              onClick={() => kycMutation.mutate({ status: 'pending_verification' })}
+            >
+              <Clock size={13} aria-hidden="true" />
+              Reset to pending
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Orders */}
@@ -139,10 +242,7 @@ export default function CustomerDetailPage() {
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <Link
-                        to={`/orders/${order.id}`}
-                        className="text-xs font-medium text-scientific-teal no-underline hover:underline"
-                      >
+                      <Link to={`/orders/${order.id}`} className="text-xs font-medium text-scientific-teal no-underline hover:underline">
                         View →
                       </Link>
                     </td>

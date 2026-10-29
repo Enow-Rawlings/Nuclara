@@ -2,7 +2,7 @@
   "framework": "vite",
   "buildCommand": "pnpm --filter admin build",
   "outputDirectory": "apps/admin/dist",
-  "installCommand": "pnpm install --allow-build=esbuild",
+  "installCommand": "pnpm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],

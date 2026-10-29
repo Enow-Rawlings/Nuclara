@@ -2,6 +2,7 @@
   "name": "nuclara",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "description": "Nuclara — Peptide E-Commerce Platform monorepo",
   "engines": {
     "node": ">=20.0.0",

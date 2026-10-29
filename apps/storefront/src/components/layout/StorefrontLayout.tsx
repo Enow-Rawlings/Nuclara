@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { Header } from './Header'
 import { Footer } from './Footer'
 import { ChatLauncher } from './ChatLauncher'
+import { CookieBanner } from './CookieBanner'
 
 export function StorefrontLayout() {
   return (
@@ -15,6 +16,7 @@ export function StorefrontLayout() {
       </main>
       <Footer />
       <ChatLauncher />
+      <CookieBanner />
     </div>
   )
 }
