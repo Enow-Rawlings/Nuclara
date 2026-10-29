@@ -6,6 +6,7 @@ import type { ApiSuccess } from 'shared-types'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { TableSkeleton } from '@/components/ui/Skeleton'
+import { AiGenerateButton } from '@/components/ui/AiGenerateButton'
 
 interface Category {
   id: string
@@ -300,7 +301,15 @@ export default function CategoriesPage() {
                 <input id="cat-name" type="text" className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div>
-                <label htmlFor="cat-desc" className="mb-1 block text-sm font-medium text-graphite">Description</label>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <label htmlFor="cat-desc" className="text-sm font-medium text-graphite">Description</label>
+                  <AiGenerateButton
+                    type="category_description"
+                    context={{ name: form.name, existing: form.description }}
+                    onGenerated={(text) => setForm({ ...form, description: text })}
+                    label="AI Generate"
+                  />
+                </div>
                 <textarea id="cat-desc" rows={3} className={inputClass} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <CategoryImageUploader

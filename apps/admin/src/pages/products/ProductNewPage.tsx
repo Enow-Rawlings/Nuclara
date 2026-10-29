@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { createProduct } from '@/services/products'
 import { Button } from '@/components/ui/Button'
 import { AlertTriangle } from 'lucide-react'
+import { AiGenerateButton } from '@/components/ui/AiGenerateButton'
 
 const schema = z.object({
   name: z.string().min(1, 'Required').max(300),
@@ -30,7 +31,7 @@ function Field({ label, id, error, required, children }: {
         {label}{required && <span className="ml-0.5 text-error-red" aria-hidden="true">*</span>}
       </label>
       {children}
-      {error && <p id={`${id}-error`} role="alert" className="text-xs text-error-red">{error}</p>}
+      {error && <p role="alert" className="text-xs text-error-red">{error}</p>}
     </div>
   )
 }
@@ -42,10 +43,16 @@ export default function ProductNewPage() {
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { currency: 'EUR', stockQuantity: 0, lowStockThreshold: 5, isVisible: false },
   })
+
+  const watchedName = watch('name') ?? ''
+  const watchedSku = watch('sku') ?? ''
+  const watchedShort = watch('shortDescription') ?? ''
+  const watchedLong = watch('longDescription') ?? ''
+  const aiCtx = { name: watchedName, sku: watchedSku, shortDescription: watchedShort, longDescription: watchedLong }
 
   const onSubmit = async (values: FormValues) => {
     setServerError(null)
@@ -74,20 +81,18 @@ export default function ProductNewPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6 flex items-center gap-3">
-        <Link to="/products" className="text-sm text-slate hover:text-scientific-teal">
-          ← Products
-        </Link>
+        <Link to="/products" className="text-sm text-slate hover:text-scientific-teal">← Products</Link>
         <h1 className="font-heading text-2xl font-bold text-midnight-navy">New product</h1>
       </div>
 
       {serverError && (
         <div role="alert" className="mb-4 flex gap-2 rounded border border-error-red/30 bg-[#fde8e8] p-3 text-sm text-error-red">
-          <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" aria-hidden="true" />
-          {serverError}
+          <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" aria-hidden="true" />{serverError}
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+        {/* Basic info */}
         <div className="rounded-lg border border-border-grey p-5">
           <h2 className="mb-4 font-heading text-base font-semibold text-midnight-navy">Basic information</h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -112,19 +117,43 @@ export default function ProductNewPage() {
           </div>
         </div>
 
+        {/* Descriptions */}
         <div className="rounded-lg border border-border-grey p-5">
           <h2 className="mb-1 font-heading text-base font-semibold text-midnight-navy">Descriptions</h2>
           <p className="mb-4 text-xs text-slate">Approved, client-reviewed content only. No dosage, treatment, or human-use claims.</p>
           <div className="flex flex-col gap-4">
-            <Field label="Short description" id="shortDescription" error={errors.shortDescription?.message}>
-              <input id="shortDescription" type="text" className={inputClass()} {...register('shortDescription')} />
-            </Field>
-            <Field label="Long description" id="longDescription" error={errors.longDescription?.message}>
-              <textarea id="longDescription" rows={6} className={[inputClass(), 'resize-y'].join(' ')} {...register('longDescription')} />
-            </Field>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <label htmlFor="shortDescription" className="text-sm font-medium text-graphite">Short description</label>
+                <AiGenerateButton
+                  type="product_short_description"
+                  context={aiCtx}
+                  onGenerated={(text) => setValue('shortDescription', text, { shouldValidate: true })}
+                  label="AI Generate"
+                />
+              </div>
+              <input id="shortDescription" type="text" className={inputClass(errors.shortDescription?.message)} {...register('shortDescription')} />
+              {errors.shortDescription && <p className="text-xs text-error-red">{errors.shortDescription.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <label htmlFor="longDescription" className="text-sm font-medium text-graphite">Long description</label>
+                </div>
+                <AiGenerateButton
+                  type="product_long_description"
+                  context={aiCtx}
+                  onGenerated={(text) => setValue('longDescription', text, { shouldValidate: true })}
+                  label="AI Generate"
+                />
+              </div>
+              <textarea id="longDescription" rows={6} className={[inputClass(errors.longDescription?.message), 'resize-y'].join(' ')} {...register('longDescription')} />
+              {errors.longDescription && <p className="text-xs text-error-red">{errors.longDescription.message}</p>}
+            </div>
           </div>
         </div>
 
+        {/* Inventory */}
         <div className="rounded-lg border border-border-grey p-5">
           <h2 className="mb-4 font-heading text-base font-semibold text-midnight-navy">Inventory</h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -141,6 +170,7 @@ export default function ProductNewPage() {
           </label>
         </div>
 
+        {/* Internal notes */}
         <div className="rounded-lg border border-border-grey p-5">
           <h2 className="mb-1 font-heading text-base font-semibold text-midnight-navy">Internal notes</h2>
           <p className="mb-3 text-xs text-slate">Admin-only. Never exposed to customers or the public API.</p>
@@ -153,9 +183,7 @@ export default function ProductNewPage() {
           <Button type="submit" variant="primary" loading={isSubmitting}>
             {isSubmitting ? 'Creating…' : 'Create product'}
           </Button>
-          <Link to="/products">
-            <Button type="button" variant="secondary">Cancel</Button>
-          </Link>
+          <Link to="/products"><Button type="button" variant="secondary">Cancel</Button></Link>
         </div>
       </form>
     </div>

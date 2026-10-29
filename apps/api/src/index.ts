@@ -31,6 +31,7 @@ import { auditRouter } from './routes/v1/audit.js'
 import { seoRouter } from './routes/v1/seo.js'
 import { settingsRouter } from './routes/v1/settings.js'
 import { contentRouter } from './routes/v1/content.js'
+import { aiRouter } from './routes/v1/ai.js'
 
 const app = express()
 
@@ -83,6 +84,7 @@ app.use(`${API_PREFIX}/audit`, auditRouter)
 app.use(`${API_PREFIX}/seo`, seoRouter)
 app.use(`${API_PREFIX}/settings`, settingsRouter)
 app.use(`${API_PREFIX}/content`, contentRouter)
+app.use(`${API_PREFIX}/ai`, aiRouter)
 // Sitemap + robots served at root paths (proxied through API or served directly)
 app.use(`${API_PREFIX}`, sitemapRouter)
 app.use(`${API_PREFIX}/admin/users`, adminUsersRouter)

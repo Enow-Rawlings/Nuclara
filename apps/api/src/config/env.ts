@@ -49,6 +49,9 @@ export const env = {
   RESEND_API_KEY: optional('RESEND_API_KEY', ''),
   EMAIL_FROM: optional('EMAIL_FROM', 'noreply@nuclara.com'),
   EMAIL_SUPPORT: optional('EMAIL_SUPPORT', 'support@nuclara.com'),
+
+  // Groq (AI content generation — server only)
+  GROQ_API_KEY: optional('GROQ_API_KEY', ''),
 } as const
 
 export const isProd = env.NODE_ENV === 'production'
