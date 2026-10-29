@@ -10,6 +10,7 @@ interface UploadSignature {
   cloudName: string
   apiKey: string
   folder: string
+  allowedFormats: string
 }
 
 interface SavedMedia {
@@ -69,6 +70,7 @@ export function ImageUploader({ productId, existingMedia, onUploaded, onDeleted 
         formData.append('timestamp', String(sig.timestamp))
         formData.append('signature', sig.signature)
         formData.append('folder', sig.folder)
+        formData.append('allowed_formats', sig.allowedFormats)
 
         const cloudRes = await fetch(
           `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
