@@ -94,6 +94,9 @@ productsRouter.get('/:slug', async (req, res, next) => {
     const { slug } = req.params
     const market = (req.query.market as string) ?? 'EU'
 
+    // Fetch the product without the !inner join (Supabase !inner + .single() can
+    // silently return null even when the row exists). We validate the market rule
+    // in a separate query instead.
     const { data, error } = await supabase
       .from('products')
       .select(
@@ -102,7 +105,7 @@ productsRouter.get('/:slug', async (req, res, next) => {
         price, currency, status, stock_quantity, low_stock_threshold,
         seo_records (seo_title, meta_description, canonical_url, robots_directive),
         product_media (cloudinary_url, alt_text, display_order, width, height),
-        product_market_rules!inner (eligibility_status, market_code),
+        product_market_rules (eligibility_status, market_code),
         categories:product_categories (
           category:categories (id, name, slug)
         )
@@ -110,11 +113,17 @@ productsRouter.get('/:slug', async (req, res, next) => {
       )
       .eq('slug', slug)
       .eq('status', 'published')
-      .eq('product_market_rules.eligibility_status', 'approved')
-      .eq('product_market_rules.market_code', market)
       .single()
 
     if (error || !data) {
+      throw new ApiError(404, 'Product not found or not available in your region')
+    }
+
+    // Compliance gate — check the market rule from the joined data
+    const marketRule = (data.product_market_rules as Array<{ eligibility_status: string; market_code: string }> | null)
+      ?.find((r) => r.market_code === market)
+
+    if (!marketRule || marketRule.eligibility_status !== 'approved') {
       throw new ApiError(404, 'Product not found or not available in your region')
     }
 
