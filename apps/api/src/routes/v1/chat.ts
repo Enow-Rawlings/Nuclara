@@ -7,6 +7,9 @@ import { ok } from '../../utils/response.js'
 import { supabase } from '../../lib/supabase.js'
 import { ApiError } from '../../utils/ApiError.js'
 import type { AuthenticatedRequest } from '../../middleware/auth.js'
+import { sendEmail } from '../../lib/resend.js'
+import { chatReplyEmail } from '../../lib/emails/index.js'
+import { env } from '../../config/env.js'
 
 export const chatRouter = Router()
 
@@ -226,6 +229,43 @@ chatRouter.post(
         .single()
 
       if (error || !message) throw new ApiError(500, 'Failed to send message')
+
+      // Send email to customer/guest for non-internal replies only
+      if (!isInternal) {
+        const { data: convDetail } = await supabase
+          .from('conversations')
+          .select(`id, customer:customers (name, email), messages (content, sender_type, is_internal)`)
+          .eq('id', id)
+          .single()
+
+        let recipientName = 'there'
+        let recipientEmail: string | null = null
+
+        if (convDetail?.customer) {
+          // Supabase returns a joined row — cast via unknown to handle array-or-object ambiguity
+          const customer = (convDetail.customer as unknown) as { name: string | null; email: string }
+          recipientName = customer.name ?? 'there'
+          recipientEmail = customer.email
+        } else {
+          // Guest — extract from system message "Guest enquiry from Name <email>"
+          const systemMsg = (convDetail?.messages as Array<{ content: string; sender_type: string; is_internal: boolean }> ?? [])
+            .find((m) => m.sender_type === 'system' && m.is_internal)
+          if (systemMsg) {
+            const match = systemMsg.content.match(/^Guest enquiry from (.+) <(.+)>$/)
+            if (match) { recipientName = match[1]; recipientEmail = match[2] }
+          }
+        }
+
+        if (recipientEmail) {
+          await sendEmail({
+            to: recipientEmail,
+            subject: 'Reply from Nuclara support',
+            html: chatReplyEmail({ guestName: recipientName, guestEmail: recipientEmail, replyContent: content, supportEmail: env.EMAIL_SUPPORT }),
+            replyTo: env.EMAIL_SUPPORT,
+          })
+        }
+      }
+
       ok(res, message, 201)
     } catch (err) {
       next(err)
