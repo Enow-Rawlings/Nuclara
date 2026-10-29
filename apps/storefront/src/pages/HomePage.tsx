@@ -28,16 +28,16 @@ export default function HomePage() {
         className="relative border-b border-border-grey bg-midnight-navy bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/hero.jpg')" }}
       >
-        {/* Dark overlay so text stays readable over any image */}
-        <div className="absolute inset-0 bg-midnight-navy/70" aria-hidden="true" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        {/* Overlay — light enough to see the image, dark enough for text contrast */}
+        <div className="absolute inset-0 bg-midnight-navy/50" aria-hidden="true" />
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-scientific-teal">
             Research Grade Peptides
           </p>
-          <h1 className="max-w-2xl font-heading text-4xl font-bold leading-tight text-pale-ice sm:text-5xl lg:text-6xl">
+          <h1 className="max-w-2xl font-heading text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             Precision peptides for serious research.
           </h1>
-          <p className="max-w-xl text-lg text-slate">
+          <p className="max-w-xl text-lg text-white/80">
             Nuclara supplies synthetic peptides to qualified researchers and laboratories.
             Every product is clearly documented, compliance-gated, and supplied with full
             transparency.
@@ -49,7 +49,7 @@ export default function HomePage() {
             </Button>
             <Link
               to="/about"
-              className="inline-flex items-center gap-2 rounded px-6 py-3 text-base font-medium text-pale-ice no-underline transition-colors hover:text-scientific-teal"
+              className="inline-flex items-center gap-2 rounded px-6 py-3 text-base font-medium text-white no-underline transition-colors hover:text-scientific-teal"
             >
               About Nuclara
             </Link>
