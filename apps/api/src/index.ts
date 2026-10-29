@@ -26,6 +26,11 @@ import { chatRouter } from './routes/v1/chat.js'
 import { sitemapRouter } from './routes/v1/sitemap.js'
 import { adminUsersRouter } from './routes/v1/adminUsers.js'
 import { emailTestRouter } from './routes/v1/emailTest.js'
+import { customersRouter } from './routes/v1/customers.js'
+import { auditRouter } from './routes/v1/audit.js'
+import { seoRouter } from './routes/v1/seo.js'
+import { settingsRouter } from './routes/v1/settings.js'
+import { contentRouter } from './routes/v1/content.js'
 
 const app = express()
 
@@ -73,6 +78,11 @@ app.use(`${API_PREFIX}/categories`, categoriesRouter)
 app.use(`${API_PREFIX}/orders`, ordersRouter)
 app.use(`${API_PREFIX}/media`, mediaRouter)
 app.use(`${API_PREFIX}/chat`, chatRouter)
+app.use(`${API_PREFIX}/customers`, customersRouter)
+app.use(`${API_PREFIX}/audit`, auditRouter)
+app.use(`${API_PREFIX}/seo`, seoRouter)
+app.use(`${API_PREFIX}/settings`, settingsRouter)
+app.use(`${API_PREFIX}/content`, contentRouter)
 // Sitemap + robots served at root paths (proxied through API or served directly)
 app.use(`${API_PREFIX}`, sitemapRouter)
 app.use(`${API_PREFIX}/admin/users`, adminUsersRouter)

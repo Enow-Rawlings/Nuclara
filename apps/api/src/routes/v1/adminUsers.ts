@@ -124,6 +124,71 @@ adminUsersRouter.post(
 )
 
 /**
+ * GET /api/v1/admin/users/me
+ * Any authenticated admin — returns their own profile.
+ */
+adminUsersRouter.get(
+  '/me',
+  requireAuth,
+  requireAdminAuth,
+  async (req, res, next) => {
+    try {
+      const authReq = req as AuthenticatedRequest
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('id, auth_user_id, email, name, role, is_active, created_at')
+        .eq('auth_user_id', authReq.userId)
+        .single()
+
+      if (error || !data) throw new ApiError(404, 'Admin user not found')
+      ok(res, data)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/**
+ * PATCH /api/v1/admin/users/me
+ * Any authenticated admin — update their own display name.
+ */
+adminUsersRouter.patch(
+  '/me',
+  requireAuth,
+  requireAdminAuth,
+  validateBody(z.object({ name: z.string().min(1).max(200) })),
+  async (req, res, next) => {
+    try {
+      const authReq = req as AuthenticatedRequest
+      const { name } = req.body as { name: string }
+
+      const { data, error } = await supabase
+        .from('admin_users')
+        .update({ name, updated_at: new Date().toISOString() })
+        .eq('auth_user_id', authReq.userId)
+        .select('id, email, name, role')
+        .single()
+
+      if (error || !data) throw new ApiError(404, 'Admin user not found')
+
+      await supabase.from('audit_logs').insert({
+        actor_id: authReq.userId,
+        actor_type: 'admin',
+        actor_email: authReq.userEmail,
+        action: 'admin_user.updated_self',
+        entity_type: 'admin_user',
+        entity_id: data.id,
+        metadata: { field: 'name' },
+      })
+
+      ok(res, data)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/**
  * PATCH /api/v1/admin/users/:id
  * Owner only — update role or active status.
  */
