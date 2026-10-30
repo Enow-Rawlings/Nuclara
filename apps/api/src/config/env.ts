@@ -56,6 +56,9 @@ export const env = {
 
   // Groq (AI content generation — server only)
   GROQ_API_KEY: optional('GROQ_API_KEY', ''),
+
+  // Visitor alert destination — defaults to EMAIL_SUPPORT
+  ALERT_EMAIL: optional('ALERT_EMAIL', ''),
 } as const
 
 export const isProd = env.NODE_ENV === 'production'

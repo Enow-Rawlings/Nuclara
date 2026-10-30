@@ -90,10 +90,13 @@ visitorPingRouter.post(
         }
       }
 
-      if (!env.EMAIL_SUPPORT || !env.RESEND_API_KEY) return
+      if (!env.RESEND_API_KEY) return
+
+      const recipient = env.ALERT_EMAIL || env.EMAIL_SUPPORT
+      if (!recipient) return
 
       await sendEmail({
-        to: env.EMAIL_SUPPORT,
+        to: recipient,
         subject: `New visitor on nuclara.store — ${page}`,
         html: visitorAlertEmail(page, referrer, ua, ip),
       })

@@ -173,10 +173,10 @@ const generateSchema = z.object({
   context: z.object({
     name: z.string().max(300).optional(),
     sku: z.string().max(100).optional(),
-    shortDescription: z.string().max(500).optional(),
-    longDescription: z.string().max(2000).optional(),
+    shortDescription: z.string().max(1000).optional(),
+    longDescription: z.string().max(5000).optional(),
     categoryName: z.string().max(200).optional(),
-    existing: z.string().max(1000).optional(),
+    existing: z.string().max(5000).optional(),
   }),
 })
 
