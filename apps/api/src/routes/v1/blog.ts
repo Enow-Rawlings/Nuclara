@@ -133,7 +133,7 @@ const postSchema = z.object({
   title: z.string().min(1).max(300),
   excerpt: z.string().max(500).optional(),
   content: z.string().max(50000).default(''),
-  coverImageUrl: z.string().url().nullable().optional(),
+  coverImageUrl: z.string().url().nullable().optional().or(z.literal('')).transform(v => v === '' ? null : v),
   tags: z.array(z.string().max(50)).max(10).default([]),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   seoTitle: z.string().max(70).optional(),
