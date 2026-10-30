@@ -133,7 +133,12 @@ const postSchema = z.object({
   title: z.string().min(1).max(300),
   excerpt: z.string().max(500).optional(),
   content: z.string().max(50000).default(''),
-  coverImageUrl: z.string().url().nullable().optional().or(z.literal('')).transform(v => v === '' ? null : v),
+  coverImageUrl: z.union([
+    z.string().url(),
+    z.string().max(0),  // empty string
+    z.null(),
+    z.undefined(),
+  ]).transform(v => (v === '' || v === undefined) ? null : v).optional(),
   tags: z.array(z.string().max(50)).max(10).default([]),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   seoTitle: z.string().max(70).optional(),
@@ -149,7 +154,7 @@ blogRouter.post(
   '/admin',
   requireAuth,
   requireAdminAuth,
-  requireRole('owner', 'seo_editor'),
+  requireRole('owner', 'seo_editor', 'catalogue_manager'),
   validateBody(postSchema),
   async (req, res, next) => {
     try {
@@ -217,7 +222,7 @@ blogRouter.patch(
   '/admin/:id',
   requireAuth,
   requireAdminAuth,
-  requireRole('owner', 'seo_editor'),
+  requireRole('owner', 'seo_editor', 'catalogue_manager'),
   validateBody(postSchema.partial()),
   async (req, res, next) => {
     try {
