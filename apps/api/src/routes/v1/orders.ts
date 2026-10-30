@@ -61,35 +61,33 @@ ordersRouter.post(
       const authReq = req as AuthenticatedRequest
       const body = req.body as z.infer<typeof createOrderSchema>
 
-      // 1. Revalidate each product server-side
+      // 1. Revalidate each product server-side — only requires published status.
+      // Market eligibility is reviewed manually by the admin after order submission.
+      // This allows orders from any region; the admin decides whether to fulfil.
       const productIds = body.items.map((i) => i.productId)
 
       const { data: products, error: productError } = await supabase
         .from('products')
-        .select(
-          `id, name, sku, price, currency, stock_quantity, status,
-           product_market_rules!inner (eligibility_status, market_code)`
-        )
+        .select('id, name, sku, price, currency, stock_quantity, status')
         .in('id', productIds)
         .eq('status', 'published')
-        .eq('product_market_rules.eligibility_status', 'approved')
-        .eq('product_market_rules.market_code', body.marketCode)
 
       if (productError) throw new ApiError(500, 'Failed to validate products')
 
-      // Check all requested products were found and approved
-      const approvedIds = new Set(products?.map((p) => p.id))
+      // Check all requested products were found and published
+      const foundIds = new Set(products?.map((p) => p.id))
       for (const item of body.items) {
-        if (!approvedIds.has(item.productId)) {
+        if (!foundIds.has(item.productId)) {
           throw new ApiError(
             400,
-            `Product ${item.productId} is not available for order in this region`
+            `Product ${item.productId} is not available`
           )
         }
       }
 
       // 2. Check stock levels
       const productMap = new Map(products!.map((p) => [p.id, p]))
+
       for (const item of body.items) {
         const product = productMap.get(item.productId)!
         if (product.stock_quantity < item.quantity) {
