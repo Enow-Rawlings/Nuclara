@@ -29,6 +29,8 @@ type GenerationType =
   | 'category_description'
   | 'category_seo_title'
   | 'category_seo_description'
+  | 'blog_excerpt'
+  | 'blog_content'
 
 interface GenerateContext {
   name?: string | undefined
@@ -107,6 +109,27 @@ ${shortDescription ? `Category description: ${shortDescription}` : ''}
 Requirements: factual, research context, no claims.
 Return only the meta description string, no quotes, no labels.`
 
+    case 'blog_excerpt':
+      return `Write a compelling blog post excerpt (2–3 sentences, max 200 words) for a research science article.
+Blog title: ${name}
+${existing ? `Existing excerpt to improve: ${existing}` : ''}
+Requirements: engaging opening that draws readers in, factual and professional tone, research/science context.
+No therapeutic claims, no human-use language.
+Return only the excerpt text, no quotes, no labels.`
+
+    case 'blog_content':
+      return `Write a well-structured blog article body (400–600 words) for a research science publication.
+Blog title: ${name}
+${shortDescription ? `Excerpt / summary: ${shortDescription}` : ''}
+${existing ? `Existing draft to improve or expand: ${existing}` : ''}
+Requirements:
+- 3–4 paragraphs separated by blank lines
+- Professional, factual, research-oriented tone
+- No therapeutic claims, no dosage, no human-use language
+- Reference research context and laboratory applications where relevant
+- No markdown headers, no bullet points — plain paragraphs only
+Return only the article body text, no title, no quotes, no labels.`
+
     default:
       throw new ApiError(400, `Unknown generation type: ${type}`)
   }
@@ -122,6 +145,8 @@ const generateSchema = z.object({
     'category_description',
     'category_seo_title',
     'category_seo_description',
+    'blog_excerpt',
+    'blog_content',
   ]),
   context: z.object({
     name: z.string().max(300).optional(),

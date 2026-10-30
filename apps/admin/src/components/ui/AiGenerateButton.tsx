@@ -12,6 +12,8 @@ type GenerationType =
   | 'category_description'
   | 'category_seo_title'
   | 'category_seo_description'
+  | 'blog_excerpt'
+  | 'blog_content'
 
 interface AiGenerateContext {
   name?: string

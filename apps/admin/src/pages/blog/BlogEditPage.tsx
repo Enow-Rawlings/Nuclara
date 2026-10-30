@@ -181,8 +181,8 @@ export default function BlogEditPage() {
               <div className="mb-1 flex items-center justify-between gap-2">
                 <label htmlFor="excerpt" className="text-sm font-medium text-graphite">Excerpt</label>
                 <AiGenerateButton
-                  type="product_short_description"
-                  context={{ name: title }}
+                  type="blog_excerpt"
+                  context={{ name: title, existing: excerpt }}
                   onGenerated={setExcerpt}
                   label="AI Generate"
                 />
@@ -203,7 +203,7 @@ export default function BlogEditPage() {
               <div className="mb-1 flex items-center justify-between gap-2">
                 <label htmlFor="content" className="text-sm font-medium text-graphite">Body *</label>
                 <AiGenerateButton
-                  type="product_long_description"
+                  type="blog_content"
                   context={aiCtx}
                   onGenerated={setContent}
                   label="AI Draft"
