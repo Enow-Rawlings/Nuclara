@@ -3,8 +3,11 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { ChatLauncher } from './ChatLauncher'
 import { CookieBanner } from './CookieBanner'
+import { useVisitorPing } from '@/hooks/useVisitorPing'
 
 export function StorefrontLayout() {
+  useVisitorPing()
+
   return (
     <div className="flex min-h-screen flex-col bg-cloud-white">
       <a href="#main-content" className="skip-link">

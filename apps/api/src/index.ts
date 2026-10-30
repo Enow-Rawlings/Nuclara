@@ -33,6 +33,7 @@ import { settingsRouter } from './routes/v1/settings.js'
 import { contentRouter } from './routes/v1/content.js'
 import { aiRouter } from './routes/v1/ai.js'
 import { blogRouter } from './routes/v1/blog.js'
+import { visitorPingRouter } from './routes/v1/visitorPing.js'
 
 const app = express()
 
@@ -87,6 +88,7 @@ app.use(`${API_PREFIX}/settings`, settingsRouter)
 app.use(`${API_PREFIX}/content`, contentRouter)
 app.use(`${API_PREFIX}/ai`, aiRouter)
 app.use(`${API_PREFIX}/blog`, blogRouter)
+app.use(`${API_PREFIX}/visitor-ping`, visitorPingRouter)
 // Sitemap + robots served at root paths (proxied through API or served directly)
 app.use(`${API_PREFIX}`, sitemapRouter)
 app.use(`${API_PREFIX}/admin/users`, adminUsersRouter)

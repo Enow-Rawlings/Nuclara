@@ -389,6 +389,15 @@ productsRouter.patch(
         }
       }
 
+      // Resolve admin_users.id from the auth user id — needed for FK columns
+      const { data: adminUser } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('auth_user_id', authReq.userId)
+        .single()
+
+      const adminUserId = adminUser?.id ?? null
+
       // Build update payload (camelCase → snake_case)
       const updates: Record<string, unknown> = {}
       if (body.name !== undefined) updates.name = body.name
@@ -404,14 +413,14 @@ productsRouter.patch(
       if (body.status !== undefined) {
         updates.status = body.status
         if (body.status === 'published') {
-          updates.published_by = authReq.userId
+          updates.published_by = adminUserId
           updates.published_at = new Date().toISOString()
         }
       }
       if (body.complianceStatus !== undefined) {
         updates.compliance_status = body.complianceStatus
         if (body.complianceStatus === 'approved') {
-          updates.compliance_reviewed_by = authReq.userId
+          updates.compliance_reviewed_by = adminUserId
           updates.compliance_reviewed_at = new Date().toISOString()
         }
       }
