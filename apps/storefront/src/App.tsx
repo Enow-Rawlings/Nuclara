@@ -19,6 +19,8 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
+const BlogPage = lazy(() => import('./pages/BlogPage'))
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
 const ShippingPage = lazy(() => import('./pages/ShippingPage'))
@@ -51,6 +53,8 @@ export function App() {
           <Route path="/account/reset-password" element={<ResetPasswordPage />} />
           <Route path="/account/orders" element={<OrdersPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/help" element={<HelpPage />} />
           <Route path="/shipping" element={<ShippingPage />} />

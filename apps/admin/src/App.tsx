@@ -45,6 +45,10 @@ const ShippingSettingsPage = lazy(() => import('./pages/settings/ShippingSetting
 const UsersSettingsPage = lazy(() => import('./pages/settings/UsersSettingsPage'))
 const IntegrationsPage = lazy(() => import('./pages/settings/IntegrationsPage'))
 
+// Blog
+const AdminBlogPage = lazy(() => import('./pages/blog/BlogPage'))
+const BlogEditPage = lazy(() => import('./pages/blog/BlogEditPage'))
+
 // Audit
 const AuditLogPage = lazy(() => import('./pages/AuditLogPage'))
 
@@ -86,6 +90,11 @@ export function App() {
             {/* Content & SEO */}
             <Route path="/content" element={<ContentPage />} />
             <Route path="/seo" element={<SeoPage />} />
+
+            {/* Blog */}
+            <Route path="/blog" element={<AdminBlogPage />} />
+            <Route path="/blog/new" element={<BlogEditPage />} />
+            <Route path="/blog/:id/edit" element={<BlogEditPage />} />
 
             {/* Support */}
             <Route path="/live-chat" element={<LiveChatPage />} />
