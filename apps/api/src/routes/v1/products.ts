@@ -425,7 +425,10 @@ productsRouter.patch(
 
       if (error || !product) {
         if (error?.code === '23505') throw new ApiError(409, 'SKU already exists', 'CONFLICT')
-        throw new ApiError(404, 'Product not found')
+        // PGRST116 = no rows returned — product exists but RLS blocked the update,
+        // or the id genuinely doesn't exist
+        console.error(`[products PATCH] id=${id} error=${JSON.stringify(error)}`)
+        throw new ApiError(404, `Product not found or update blocked (id: ${id})`)
       }
 
       // Audit log
