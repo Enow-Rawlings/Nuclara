@@ -118,12 +118,19 @@ ordersRouter.post(
       // 4. Generate non-sequential public reference
       const publicReference = `NUC-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 6).toUpperCase()}`
 
-      // 5. Create order record
+      // 5. Resolve customer record id (FK to customers.id, not auth UUID)
+      const { data: customerRecord } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('auth_user_id', authReq.userId)
+        .single()
+
+      // 6. Create order record
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           public_reference: publicReference,
-          customer_id: authReq.userId,
+          customer_id: customerRecord?.id ?? null,
           contact_name: body.contactName,
           contact_email: body.contactEmail,
           shipping_address: body.shippingAddress,
@@ -138,6 +145,7 @@ ordersRouter.post(
         .single()
 
       if (orderError || !order) {
+        console.error('[orders POST] create order error:', JSON.stringify(orderError))
         throw new ApiError(500, 'Failed to create order')
       }
 
@@ -157,7 +165,7 @@ ordersRouter.post(
         order_id: order.id,
         old_status: null,
         new_status: 'pending_review',
-        actor_id: authReq.userId,
+        actor_id: customerRecord?.id ?? null,
         actor_type: 'customer',
         note: 'Order request submitted',
       })
