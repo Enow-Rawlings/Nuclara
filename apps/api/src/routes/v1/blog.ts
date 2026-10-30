@@ -199,10 +199,13 @@ blogRouter.post(
         .select('id, slug, title, status, created_at')
         .single()
 
-      if (error || !data) throw new ApiError(500, 'Failed to create post')
+      if (error || !data) {
+        console.error('[blog POST] insert error:', JSON.stringify(error))
+        throw new ApiError(500, 'Failed to create post')
+      }
 
       await supabase.from('audit_logs').insert({
-        actor_id: authReq.userId, actor_type: 'admin', actor_email: authReq.userEmail,
+        actor_id: adminUser?.id ?? null, actor_type: 'admin', actor_email: authReq.userEmail,
         action: 'blog_post.created', entity_type: 'blog_post', entity_id: data.id,
         metadata: { title: data.title, status: data.status },
       })
@@ -229,6 +232,9 @@ blogRouter.patch(
       const authReq = req as AuthenticatedRequest
       const { id } = req.params
       const body = req.body as Partial<z.infer<typeof postSchema>>
+
+      // Resolve admin_users.id for audit log FK
+      const { data: adminUser } = await supabase.from('admin_users').select('id').eq('auth_user_id', authReq.userId).single()
 
       const updates: Record<string, unknown> = {}
       if (body.title !== undefined) updates.title = body.title
@@ -258,7 +264,7 @@ blogRouter.patch(
       if (error || !data) throw new ApiError(404, 'Post not found')
 
       await supabase.from('audit_logs').insert({
-        actor_id: authReq.userId, actor_type: 'admin', actor_email: authReq.userEmail,
+        actor_id: adminUser?.id ?? null, actor_type: 'admin', actor_email: authReq.userEmail,
         action: 'blog_post.updated', entity_type: 'blog_post', entity_id: id,
         metadata: { changes: Object.keys(updates) },
       })
@@ -283,11 +289,12 @@ blogRouter.delete(
     try {
       const authReq = req as AuthenticatedRequest
       const { id } = req.params
+      const { data: adminUser } = await supabase.from('admin_users').select('id').eq('auth_user_id', authReq.userId).single()
       const { error } = await supabase.from('blog_posts').delete().eq('id', id)
       if (error) throw new ApiError(404, 'Post not found')
 
       await supabase.from('audit_logs').insert({
-        actor_id: authReq.userId, actor_type: 'admin', actor_email: authReq.userEmail,
+        actor_id: adminUser?.id ?? null, actor_type: 'admin', actor_email: authReq.userEmail,
         action: 'blog_post.deleted', entity_type: 'blog_post', entity_id: id, metadata: {},
       })
 
