@@ -201,7 +201,7 @@ blogRouter.post(
 
       if (error || !data) {
         console.error('[blog POST] insert error:', JSON.stringify(error))
-        throw new ApiError(500, 'Failed to create post')
+        throw new ApiError(500, `Failed to create post: ${error?.message ?? 'unknown'} (code: ${error?.code ?? 'none'})`)
       }
 
       await supabase.from('audit_logs').insert({
