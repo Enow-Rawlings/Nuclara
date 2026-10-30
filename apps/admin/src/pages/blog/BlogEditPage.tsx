@@ -269,7 +269,7 @@ export default function BlogEditPage() {
                 className={[inputClass, 'resize-none'].join(' ')}
                 placeholder="Brief summary shown on the blog list page…"
               />
-              <p className="mt-0.5 text-xs text-slate">{excerpt.length}/500</p>
+              <p className="mt-0.5 text-xs text-slate">{excerpt.length}/1000</p>
             </div>
 
             <div>

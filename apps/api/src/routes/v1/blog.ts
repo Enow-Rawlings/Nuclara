@@ -131,7 +131,7 @@ blogRouter.get('/admin/:id', requireAuth, requireAdminAuth, async (req, res, nex
 
 const postSchema = z.object({
   title: z.string().min(1).max(300),
-  excerpt: z.string().max(500).optional(),
+  excerpt: z.string().max(1000).optional(),
   content: z.string().max(50000).default(''),
   coverImageUrl: z.union([
     z.string().url(),
