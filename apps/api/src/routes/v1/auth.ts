@@ -6,6 +6,7 @@ import { requireAuth } from '../../middleware/auth.js'
 import { ok } from '../../utils/response.js'
 import { supabase } from '../../lib/supabase.js'
 import { ApiError } from '../../utils/ApiError.js'
+import { env } from '../../config/env.js'
 import type { AuthenticatedRequest } from '../../middleware/auth.js'
 
 export const authRouter = Router()
@@ -34,11 +35,15 @@ authRouter.post(
         name: string
       }
 
-      const { data, error } = await supabase.auth.admin.createUser({
+      // Use signUp so Supabase sends the confirmation email via the configured SMTP.
+      // admin.createUser with email_confirm:true skips the email entirely.
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        user_metadata: { name },
-        email_confirm: true,
+        options: {
+          data: { name },
+          emailRedirectTo: `${env.FRONTEND_ORIGIN}/account/login`,
+        },
       })
 
       if (error) {
