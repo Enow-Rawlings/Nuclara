@@ -1,13 +1,86 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, CheckCircle, ArrowLeft, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle, ArrowLeft, X, ImageIcon, Upload } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { ApiSuccess } from 'shared-types'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { AiGenerateButton } from '@/components/ui/AiGenerateButton'
+
+interface UploadSignature {
+  signature: string; timestamp: number; cloudName: string; apiKey: string; folder: string; allowedFormats: string
+}
+
+function BlogCoverUploader({ currentUrl, onChange }: { currentUrl: string; onChange: (url: string) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const handleFile = async (file: File) => {
+    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp']
+    if (!ALLOWED.includes(file.type)) { setUploadError('Only JPG, PNG and WebP allowed.'); return }
+    if (file.size > 5 * 1024 * 1024) { setUploadError('File exceeds 5 MB.'); return }
+    setUploadError(null)
+    setUploading(true)
+    try {
+      const sigRes = await api.get<ApiSuccess<UploadSignature>>('/media/upload-signature', { params: { folder: 'blog' } })
+      const sig = sigRes.data.data
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('api_key', sig.apiKey)
+      formData.append('timestamp', String(sig.timestamp))
+      formData.append('signature', sig.signature)
+      formData.append('folder', sig.folder)
+      formData.append('allowed_formats', sig.allowedFormats)
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: 'POST', body: formData })
+      if (!res.ok) { const e = await res.json() as { error?: { message?: string } }; throw new Error(e.error?.message ?? 'Upload failed') }
+      const data = await res.json() as { secure_url: string }
+      onChange(data.secure_url)
+    } catch (err: unknown) {
+      setUploadError((err as Error).message ?? 'Upload failed.')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  return (
+    <div>
+      <p className="mb-1 text-sm font-medium text-graphite">Cover image</p>
+      {currentUrl ? (
+        <div className="relative mb-2">
+          <img src={currentUrl} alt="Cover preview" className="h-40 w-full rounded-lg object-cover border border-border-grey" />
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            aria-label="Remove cover image"
+            className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-error-red text-white hover:bg-[#c0392b]"
+          >
+            <X size={12} aria-hidden="true" />
+          </button>
+        </div>
+      ) : (
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f) }}
+          className="mb-2 flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border-grey bg-pale-ice p-6 text-center"
+        >
+          <ImageIcon size={24} className="text-slate" aria-hidden="true" />
+          <p className="text-sm text-slate">Drag an image here or click to upload</p>
+          <p className="text-xs text-slate">JPG, PNG, WebP — max 5 MB. Recommended: 1200×630 px</p>
+          <Button type="button" variant="secondary" size="sm" loading={uploading} onClick={() => fileInputRef.current?.click()}>
+            <Upload size={13} aria-hidden="true" />
+            {uploading ? 'Uploading…' : 'Choose image'}
+          </Button>
+        </div>
+      )}
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" aria-label="Upload cover image" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
+      {uploadError && <p className="mt-1 flex items-center gap-1 text-xs text-error-red"><AlertTriangle size={11} aria-hidden="true" /> {uploadError}</p>}
+    </div>
+  )
+}
 
 interface BlogPost {
   id: string
@@ -220,13 +293,10 @@ export default function BlogEditPage() {
               />
             </div>
 
-            <div>
-              <label htmlFor="coverUrl" className="mb-1 block text-sm font-medium text-graphite">Cover image URL</label>
-              <input id="coverUrl" type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className={inputClass} placeholder="https://…" />
-              {coverUrl && (
-                <img src={coverUrl} alt="Cover preview" className="mt-2 h-24 w-full rounded-lg object-cover" onError={() => setCoverUrl('')} />
-              )}
-            </div>
+            <BlogCoverUploader
+              currentUrl={coverUrl}
+              onChange={setCoverUrl}
+            />
 
             {/* Tags */}
             <div>
