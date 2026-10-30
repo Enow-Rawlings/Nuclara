@@ -109,7 +109,7 @@ customersRouter.get(
 // ─── Email helpers ────────────────────────────────────────────────────────────
 
 function kycVerifiedEmail(customerName: string): string {
-  const frontendUrl = process.env.FRONTEND_ORIGIN ?? 'https://nuclara.com'
+  const frontendUrl = env.FRONTEND_ORIGIN
   const content = `
     <h1 style="margin:0 0 8px;font-family:'Manrope',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;color:#10243A;">Account verified</h1>
     <p style="margin:0 0 24px;font-size:15px;color:#536273;line-height:1.6;">Hi ${customerName},</p>

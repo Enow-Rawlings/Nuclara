@@ -4,8 +4,7 @@ import { env } from '../../config/env.js'
 
 export const sitemapRouter = Router()
 
-const STOREFRONT_ORIGIN =
-  env.ALLOWED_ORIGINS.find((o) => !o.includes('5174')) ?? env.ALLOWED_ORIGINS[0] ?? 'https://nuclara.com'
+const STOREFRONT_ORIGIN = env.FRONTEND_ORIGIN
 
 function xmlEscape(str: string): string {
   return str

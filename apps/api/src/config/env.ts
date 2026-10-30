@@ -40,6 +40,10 @@ export const env = {
     .split(',')
     .map((o) => o.trim()),
 
+  // Frontend URLs (used in emails and sitemap)
+  FRONTEND_ORIGIN: optional('FRONTEND_ORIGIN', 'http://localhost:5173'),
+  ADMIN_ORIGIN: optional('ADMIN_ORIGIN', 'http://localhost:5174'),
+
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: optional('CLOUDINARY_CLOUD_NAME', ''),
   CLOUDINARY_API_KEY: optional('CLOUDINARY_API_KEY', ''),
