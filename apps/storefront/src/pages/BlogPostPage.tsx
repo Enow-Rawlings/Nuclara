@@ -126,13 +126,40 @@ export default function BlogPostPage() {
           </p>
         )}
 
-        {/* Content — rendered as plain paragraphs (no HTML injection) */}
+        {/* Content — renders paragraphs and bullet point lists */}
         <div className="prose prose-slate max-w-none">
-          {post.content.split('\n\n').filter(Boolean).map((para, i) => (
-            <p key={i} className="mb-4 text-base leading-relaxed text-graphite">
-              {para}
-            </p>
-          ))}
+          {post.content.split('\n\n').filter(Boolean).map((block, i) => {
+            const lines = block.split('\n').filter(Boolean)
+            const isBulletBlock = lines.every((l) => l.trim().startsWith('•') || l.trim().startsWith('-'))
+
+            if (isBulletBlock) {
+              return (
+                <ul key={i} className="mb-6 space-y-2 pl-4">
+                  {lines.map((line, j) => (
+                    <li key={j} className="flex items-start gap-2 text-base leading-relaxed text-graphite">
+                      <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-scientific-teal" aria-hidden="true" />
+                      <span>{line.replace(/^[•\-]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+
+            // Check if it's a heading line (short, no period at end, followed by bullets)
+            if (lines.length === 1 && lines[0].length < 80 && !lines[0].endsWith('.')) {
+              return (
+                <h3 key={i} className="mb-3 mt-6 font-heading text-lg font-semibold text-midnight-navy">
+                  {lines[0]}
+                </h3>
+              )
+            }
+
+            return (
+              <p key={i} className="mb-4 text-base leading-relaxed text-graphite">
+                {block}
+              </p>
+            )
+          })}
         </div>
 
         {/* Back link */}

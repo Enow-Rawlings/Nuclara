@@ -16,7 +16,9 @@ STRICT RULES:
 - No dosage recommendations or instructions
 - Always frame use as "for research purposes only" or "laboratory use"
 - Keep language professional, factual, and precise
-- Do not invent specifications — only use what is provided`
+- Do not invent specifications — only use what is provided
+- NEVER use em-dashes (—) or en-dashes (–) anywhere in the output
+- Use commas, colons, or new sentences instead of dashes`
 
 type GenerationType =
   | 'product_short_description'
@@ -147,12 +149,17 @@ function buildPrompt(type: GenerationType, ctx: GenerateContext): string {
         `Blog title: ${name}`,
         shortDescription ? `Excerpt / summary: ${shortDescription}` : '',
         existing ? `Existing draft to improve or expand: ${existing}` : '',
-        'Requirements:',
-        '- 3-4 paragraphs separated by blank lines',
+        'STRUCTURE REQUIREMENTS:',
+        '1. Opening paragraph (2-3 sentences introducing the topic)',
+        '2. A section with a clear heading line followed by 4-6 bullet points directly related to the title (e.g. key facts, steps, applications, or characteristics)',
+        '   Format bullet points as: "• Point text here" — one per line',
+        '3. One or two closing paragraphs expanding on the topic in research context',
+        'WRITING RULES:',
         '- Professional, factual, research-oriented tone',
         '- No therapeutic claims, no dosage, no human-use language',
-        '- Reference research context and laboratory applications where relevant',
-        '- No markdown headers, no bullet points - plain paragraphs only',
+        '- No em-dashes or en-dashes',
+        '- Separate paragraphs with a blank line',
+        '- The bullet point section must appear in the middle of the article',
         'Return only the article body text, no title, no quotes, no labels.',
       ].filter(Boolean).join('\n')
 
