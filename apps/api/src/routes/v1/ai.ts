@@ -81,12 +81,16 @@ function buildPrompt(type: GenerationType, ctx: GenerateContext): string {
 
     case 'product_seo_description':
       return [
-        'Write an SEO meta description (120-155 characters) for a research peptide product page.',
+        'Write an SEO meta description for a research peptide product page.',
         `Product name: ${name}`,
         shortDescription ? `Short description: ${shortDescription}` : '',
-        'Requirements: factual, include the product name naturally, research-context framing, no therapeutic claims.',
-        'The description MUST be at least 120 characters and no more than 155 characters.',
-        'Return only the meta description string, no quotes, no labels, no preamble.',
+        'Requirements:',
+        '- Between 130 and 155 characters total (count carefully)',
+        '- Include the product name naturally',
+        '- Research/laboratory context framing',
+        '- No therapeutic or health claims',
+        '- Must be a single sentence or two short sentences',
+        'Return ONLY the meta description text. No quotes, no labels, no explanation.',
       ].filter(Boolean).join('\n')
 
     case 'product_tags':
@@ -208,11 +212,23 @@ aiRouter.post(
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: prompt },
         ],
-        temperature: 0.4,
-        max_tokens: 600,
+        temperature: 0.3,
+        max_tokens: 800,
       })
 
-      const generated = completion.choices[0]?.message?.content?.trim() ?? ''
+      let generated = completion.choices[0]?.message?.content?.trim() ?? ''
+
+      // Retry once with a simpler prompt for meta descriptions (model sometimes refuses)
+      if (!generated && type === 'product_seo_description') {
+        const fallback = `Write a 140-character SEO meta description for a research peptide called "${context.name ?? 'this peptide'}". Research use only, no health claims. Return only the description text.`
+        const retry = await groq.chat.completions.create({
+          model: 'openai/gpt-oss-20b',
+          messages: [{ role: 'user', content: fallback }],
+          temperature: 0.5,
+          max_tokens: 200,
+        })
+        generated = retry.choices[0]?.message?.content?.trim() ?? ''
+      }
 
       if (!generated) throw new ApiError(500, 'AI returned an empty response. Please try again.')
 
